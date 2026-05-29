@@ -116,14 +116,12 @@
 
   .page-container {
     display: flex;
-    width: 200%;
     height: 100%;
     transition: transform 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
-  .page-container.page-1 { transform: translateX(-50%); }
 
   .page {
-    width: 50%;
+    width: 100vw;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -165,6 +163,10 @@
     gap: 12px;
     width: 100%;
     max-width: 860px;
+  }
+  .categories-q2 {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 680px;
   }
 
   .cat-btn {
@@ -479,6 +481,36 @@
     font-size: clamp(20px, min(3.6vw, 5vh), 34px);
     color: #4a3c5e;
     line-height: 1.4;
+  }
+
+  /* 어떤 그림일까 II - 긴 텍스트 카드 */
+  .question-card-long {
+    border-color: #d4c5f5;
+    box-shadow: 0 8px 0 rgba(165,94,234,0.25), 0 12px 24px rgba(0,0,0,0.15);
+    max-width: min(94vw, 760px);
+  }
+  .tale-title {
+    font-family: 'Jua', sans-serif;
+    font-size: clamp(15px, min(2.4vw, 3vh), 22px);
+    color: #a55eea;
+    background: #f3ecfd;
+    padding: 4px 16px;
+    border-radius: 14px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .question-text-long {
+    font-size: clamp(16px, min(2.7vw, 3.6vh), 27px);
+    line-height: 1.5;
+  }
+  /* 글자 보기형 옵션 (동화) - 이모지 없이 글자만 크게 */
+  .option.text-only {
+    justify-content: center;
+    min-height: min(70px, 12vh);
+    padding: min(18px, 2.4vh) 8px;
+  }
+  .option.text-only .option-word {
+    font-size: clamp(20px, min(3.4vw, 4.5vh), 32px);
   }
 
   .options-grid {
@@ -1190,6 +1222,16 @@
           <button class="cat-btn" data-mode="quiz" data-cat="weather"><span class="cat-emoji">🌦️</span><span>날씨</span></button>
         </div>
       </div>
+      <div class="page">
+        <h1 class="title">어떤 그림일까? II</h1>
+        <p class="subtitle">📖 긴 이야기를 읽고 답을 골라봐요! (조금 어려워요)</p>
+        <div class="categories categories-q2">
+          <button class="cat-btn" data-mode="desc" data-cat="desc"><span class="cat-emoji">🔍</span><span>묘사</span></button>
+          <button class="cat-btn" data-mode="tale" data-cat="korean"><span class="cat-emoji">🏯</span><span>전래동화</span></button>
+          <button class="cat-btn" data-mode="tale" data-cat="world"><span class="cat-emoji">🏰</span><span>명작동화</span></button>
+          <button class="cat-btn" data-mode="tale" data-cat="all"><span class="cat-emoji">📚</span><span>동화 모두</span></button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1197,6 +1239,7 @@
   <button class="page-arrow right" id="nextPage" aria-label="다음">▶</button>
   <div class="page-dots">
     <span class="dot active"></span>
+    <span class="dot"></span>
     <span class="dot"></span>
   </div>
 </div>
@@ -1252,6 +1295,33 @@
       <div class="question-text" id="questionText">야옹하고 우는 부드러운 동물이에요.</div>
     </div>
     <div class="options-grid" id="optionsGrid"></div>
+  </div>
+</div>
+
+<!-- 게임 3: 어떤 그림일까? II (동화 + 묘사) -->
+<div id="quiz2-screen" class="screen">
+  <div class="top-bar">
+    <button class="icon-btn" data-home aria-label="홈">🏠</button>
+    <div class="center-stack">
+      <div class="score-row">
+        <div class="score-display"><span>⭐</span><span id="score3">0</span></div>
+        <div class="combo-badge" id="combo3">🔥 <span id="comboNum3">2</span> 콤보!</div>
+      </div>
+      <div class="sticker-progress" id="stickerProgress3" style="display:none">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="progress-label">0/10 🏆</div>
+      </div>
+    </div>
+    <button class="icon-btn" data-ingame-settings aria-label="설정">⚙️</button>
+  </div>
+
+  <div class="quiz-container">
+    <div class="question-card question-card-long" id="quiz2Card">
+      <div class="question-icon" id="quiz2Icon">📖</div>
+      <div class="tale-title" id="quiz2TaleTitle" style="display:none"></div>
+      <div class="question-text question-text-long" id="quiz2Question">긴 이야기 설명이 여기에 나와요.</div>
+    </div>
+    <div class="options-grid" id="quiz2OptionsGrid"></div>
   </div>
 </div>
 
@@ -1816,6 +1886,314 @@ const baseWordData = {
   custom: [],
 };
 
+// === 어떤 그림일까? II 데이터 ===
+const taleQuizData = {
+  korean: [
+    { tale: '콩쥐팥쥐', q: '마음씨 착한 콩쥐가 깨진 항아리에 물을 채우지 못해 울고 있을 때, 나타나서 깨진 구멍을 막아준 동물이에요.', answer: '두꺼비', wrongs: ['토끼', '개구리', '거북이'] },
+    { tale: '콩쥐팥쥐', q: '콩쥐가 밭을 매야 했을 때, 나무로 만든 것 대신 콩쥐를 도와준 부러진 농기구는 무엇일까요?', answer: '호미', wrongs: ['삽', '낫', '곡괭이'] },
+    { tale: '콩쥐팥쥐', q: '콩쥐가 잔치에 갈 때 잃어버린 것으로, 원님이 주인을 찾으려 했던 물건이에요.', answer: '꽃신', wrongs: ['모자', '반지', '비녀'] },
+    { tale: '콩쥐팥쥐', q: '콩쥐에게 곡식을 다 쪼아 먹지 않고 오히려 까서 도와준 새들이에요.', answer: '참새', wrongs: ['까마귀', '비둘기', '제비'] },
+    { tale: '콩쥐팥쥐', q: '계모가 콩쥐에게 채우라고 시킨, 밑 빠진 그릇은 무엇일까요?', answer: '항아리', wrongs: ['바구니', '주머니', '상자'] },
+    { tale: '콩쥐팥쥐', q: '콩쥐를 못살게 굴고 콩쥐의 자리를 빼앗으려 한 못된 동생이에요.', answer: '팥쥐', wrongs: ['콩쥐', '선녀', '공주'] },
+    { tale: '콩쥐팥쥐', q: '콩쥐가 잔치에 가도록 예쁜 옷과 신발을 마련해 도와준, 하늘에서 내려온 존재예요.', answer: '선녀', wrongs: ['마녀', '요정', '천사'] },
+    { tale: '흥부와 놀부', q: '흥부가 다리를 고쳐준 새로, 나중에 박씨를 물어다 준 동물이에요.', answer: '제비', wrongs: ['참새', '까치', '비둘기'] },
+    { tale: '흥부와 놀부', q: '제비가 흥부에게 물어다 준 것으로, 심으면 큰 박이 열리는 씨앗이에요.', answer: '박씨', wrongs: ['콩', '팥', '호박씨'] },
+    { tale: '흥부와 놀부', q: '흥부가 톱으로 켠 박 속에서 쏟아져 나온 것으로, 부자가 되게 해준 거예요.', answer: '보물', wrongs: ['쓰레기', '도깨비', '벌레'] },
+    { tale: '흥부와 놀부', q: '욕심 많은 흥부의 형으로, 일부러 제비 다리를 부러뜨린 사람이에요.', answer: '놀부', wrongs: ['흥부', '원님', '나무꾼'] },
+    { tale: '흥부와 놀부', q: '놀부가 켠 박에서 나와 놀부를 혼내준 무서운 존재예요.', answer: '도깨비', wrongs: ['선녀', '신선', '장군'] },
+    { tale: '흥부와 놀부', q: '흥부 부부가 박을 자를 때 사용한, 둘이 마주 잡고 켜는 도구예요.', answer: '톱', wrongs: ['칼', '낫', '도끼'] },
+    { tale: '흥부와 놀부', q: '흥부네 집은 가난해서 먹을 것이 없었어요. 흥부 가족이 아주 많아서 힘들었던 것은 무엇일까요?', answer: '자식', wrongs: ['돈', '쌀', '집'] },
+    { tale: '토끼와 거북이', q: '느리지만 끝까지 포기하지 않고 경주에서 이긴 동물이에요.', answer: '거북이', wrongs: ['토끼', '달팽이', '개구리'] },
+    { tale: '토끼와 거북이', q: '빠른 것만 믿고 낮잠을 자다가 경주에서 진 동물이에요.', answer: '토끼', wrongs: ['거북이', '사슴', '말'] },
+    { tale: '토끼와 거북이', q: '토끼와 거북이가 한 것으로, 누가 더 빠른지 겨루는 시합이에요.', answer: '달리기', wrongs: ['수영', '씨름', '줄넘기'] },
+    { tale: '토끼와 거북이', q: '토끼가 경주 도중에 나무 그늘에서 한 것으로, 이걸 하다가 졌어요.', answer: '낮잠', wrongs: ['식사', '공부', '목욕'] },
+    { tale: '토끼와 거북이', q: '거북이가 이길 수 있었던 이유로, 쉬지 않고 끝까지 한 마음가짐이에요.', answer: '노력', wrongs: ['거짓말', '욕심', '행운'] },
+    { tale: '별주부전', q: '용왕님의 병을 고치려고 토끼의 간을 구하러 육지로 간 동물이에요.', answer: '자라', wrongs: ['거북이', '물고기', '개구리'] },
+    { tale: '별주부전', q: '자라가 간을 구하려고 속여서 용궁으로 데려가려 한 동물이에요.', answer: '토끼', wrongs: ['사슴', '여우', '너구리'] },
+    { tale: '별주부전', q: '자라가 토끼를 데려가려 한 곳으로, 용왕님이 사는 바닷속 궁궐이에요.', answer: '용궁', wrongs: ['산속', '하늘', '동굴'] },
+    { tale: '별주부전', q: '바닷속 나라를 다스리는 임금님으로, 병이 들어 토끼의 간이 필요했어요.', answer: '용왕', wrongs: ['원님', '장군', '신선'] },
+    { tale: '별주부전', q: '토끼가 용궁에서 살아 돌아오려고 간을 어디에 두고 왔다고 꾀를 낸 신체 부위예요.', answer: '간', wrongs: ['심장', '머리', '다리'] },
+    { tale: '별주부전', q: '토끼가 위기에서 벗어난 방법으로, 머리를 써서 거짓말로 빠져나온 것이에요.', answer: '꾀', wrongs: ['힘', '울음', '춤'] },
+    { tale: '해와 달이 된 오누이', q: '오누이가 호랑이를 피해 하늘로 올라가려고 잡은, 하늘에서 내려온 것이에요.', answer: '동아줄', wrongs: ['사다리', '나무', '계단'] },
+    { tale: '해와 달이 된 오누이', q: '떡을 다 빼앗아 먹고 엄마로 변장해 오누이를 잡아먹으려 한 동물이에요.', answer: '호랑이', wrongs: ['늑대', '곰', '여우'] },
+    { tale: '해와 달이 된 오누이', q: '오빠가 하늘로 올라가서 된 것으로, 낮에 환하게 빛나는 거예요.', answer: '해', wrongs: ['달', '별', '구름'] },
+    { tale: '해와 달이 된 오누이', q: '동생이 하늘로 올라가서 된 것으로, 밤에 떠 있는 거예요.', answer: '달', wrongs: ['해', '별', '무지개'] },
+    { tale: '해와 달이 된 오누이', q: '호랑이가 썩은 동아줄을 잡고 떨어진 곳으로, 빨갛게 물들었다는 곳이에요.', answer: '수수밭', wrongs: ['바다', '강', '논'] },
+    { tale: '해와 달이 된 오누이', q: '엄마가 호랑이에게 빼앗긴 것으로, 머리에 이고 오던 음식이에요.', answer: '떡', wrongs: ['밥', '과일', '쌀'] },
+    { tale: '선녀와 나무꾼', q: '나무꾼이 사냥꾼에게 쫓기던 것을 구해줘서 은혜를 갚은 동물이에요.', answer: '사슴', wrongs: ['토끼', '호랑이', '곰'] },
+    { tale: '선녀와 나무꾼', q: '나무꾼이 몰래 숨겨서 선녀가 하늘로 못 돌아가게 만든 것이에요.', answer: '날개옷', wrongs: ['신발', '모자', '치마'] },
+    { tale: '선녀와 나무꾼', q: '연못에서 목욕을 하다가 날개옷을 잃어버린, 하늘에서 내려온 존재예요.', answer: '선녀', wrongs: ['공주', '마녀', '요정'] },
+    { tale: '선녀와 나무꾼', q: '선녀들이 하늘에서 내려와 목욕을 한 곳이에요.', answer: '연못', wrongs: ['바다', '우물', '강'] },
+    { tale: '선녀와 나무꾼', q: '나무꾼이 산에서 나무를 하던 사람이라, 그의 직업을 무엇이라고 할까요?', answer: '나무꾼', wrongs: ['사냥꾼', '농부', '어부'] },
+    { tale: '혹부리 영감', q: '혹부리 영감의 얼굴에 달려 있던 것으로, 노래 주머니라고 도깨비가 믿은 거예요.', answer: '혹', wrongs: ['코', '귀', '점'] },
+    { tale: '혹부리 영감', q: '영감의 노래를 듣고 혹을 가져간, 밤에 나타난 무서운 존재예요.', answer: '도깨비', wrongs: ['호랑이', '귀신', '선녀'] },
+    { tale: '혹부리 영감', q: '도깨비가 영감에게 혹을 떼주며 준 것으로, 반짝이는 귀한 거예요.', answer: '보물', wrongs: ['떡', '옷', '쌀'] },
+    { tale: '혹부리 영감', q: '착한 영감을 따라 했다가 혹을 하나 더 붙이게 된 욕심쟁이는 누구일까요?', answer: '이웃영감', wrongs: ['나무꾼', '원님', '사냥꾼'] },
+    { tale: '혹부리 영감', q: '혹부리 영감이 도깨비 앞에서 부른 것으로, 도깨비가 좋아한 거예요.', answer: '노래', wrongs: ['춤', '울음', '웃음'] },
+    { tale: '금도끼 은도끼', q: '나무꾼이 연못에 빠뜨린 것으로, 나무를 자르는 도구예요.', answer: '도끼', wrongs: ['낫', '톱', '칼'] },
+    { tale: '금도끼 은도끼', q: '연못에서 나타나 나무꾼에게 도끼가 네 것이냐고 물어본 존재예요.', answer: '산신령', wrongs: ['선녀', '도깨비', '용왕'] },
+    { tale: '금도끼 은도끼', q: '정직한 나무꾼이 자기 것이라고 말한, 평범한 도끼는 무엇으로 만들어졌을까요?', answer: '쇠', wrongs: ['금', '은', '나무'] },
+    { tale: '금도끼 은도끼', q: '산신령이 정직한 나무꾼에게 상으로 준, 번쩍이는 노란 도끼예요.', answer: '금도끼', wrongs: ['쇠도끼', '돌도끼', '나무도끼'] },
+    { tale: '금도끼 은도끼', q: '욕심쟁이 나무꾼이 거짓말을 했다가 받은 벌로, 도끼를 모두 어떻게 됐을까요?', answer: '잃어버림', wrongs: ['부자됨', '상받음', '칭찬받음'] },
+    { tale: '단군신화', q: '쑥과 마늘을 먹고 백일을 견뎌서 사람이 된 동물이에요.', answer: '곰', wrongs: ['호랑이', '사슴', '여우'] },
+    { tale: '단군신화', q: '사람이 되려다가 참지 못하고 동굴을 뛰쳐나간 동물이에요.', answer: '호랑이', wrongs: ['곰', '늑대', '사자'] },
+    { tale: '단군신화', q: '곰이 사람이 되려고 동굴에서 먹은 것으로, 쓴 풀과 매운 것이에요.', answer: '쑥과마늘', wrongs: ['밥과국', '떡과꿀', '콩과팥'] },
+    { tale: '단군신화', q: '우리나라를 처음 세운 사람으로, 곰에서 사람이 된 여인의 아들이에요.', answer: '단군', wrongs: ['주몽', '박혁거세', '온조'] },
+    { tale: '단군신화', q: '곰이 사람이 되려고 백일 동안 머문 어두운 곳이에요.', answer: '동굴', wrongs: ['궁궐', '숲속', '바닷속'] },
+    { tale: '호랑이와 곶감', q: '우는 아이에게 엄마가 무섭다고 말했지만 울음을 안 그치게 한, 산에 사는 동물이에요.', answer: '호랑이', wrongs: ['곰', '늑대', '여우'] },
+    { tale: '호랑이와 곶감', q: '아이가 울음을 뚝 그치게 만든 것으로, 호랑이보다 무섭다고 오해받은 달콤한 음식이에요.', answer: '곶감', wrongs: ['떡', '사탕', '꿀'] },
+    { tale: '호랑이와 곶감', q: '호랑이를 도둑인 줄 알고 등에 올라탄 사람이에요.', answer: '소도둑', wrongs: ['나무꾼', '농부', '사냥꾼'] },
+    { tale: '호랑이와 곶감', q: '호랑이가 곶감을 자기보다 무서운 존재로 착각한 까닭은 무엇이 부족해서일까요?', answer: '착각', wrongs: ['용기', '지혜', '힘'] },
+    { tale: '의좋은 형제', q: '형제가 서로를 위해 밤에 몰래 옮긴 것으로, 추수한 곡식 더미예요.', answer: '볏단', wrongs: ['장작', '돌멩이', '보따리'] },
+    { tale: '의좋은 형제', q: '의좋은 형제가 농사지어 거둔 곡식으로, 밥을 짓는 재료예요.', answer: '벼', wrongs: ['콩', '보리', '밀'] },
+    { tale: '의좋은 형제', q: '형과 아우가 서로에게 보여준 마음으로, 아끼고 사랑하는 마음이에요.', answer: '우애', wrongs: ['욕심', '질투', '미움'] },
+    { tale: '의좋은 형제', q: '형제가 볏단을 옮긴 때로, 서로 들키지 않으려고 한 시간이에요.', answer: '밤', wrongs: ['낮', '아침', '저녁'] },
+    { tale: '의좋은 형제', q: '형제가 한밤중에 볏단을 옮기다가 길에서 마주쳤을 때 알게 된 것은 서로의 무엇일까요?', answer: '마음', wrongs: ['욕심', '비밀', '잘못'] },
+    { tale: '팥죽 할머니와 호랑이', q: '할머니를 잡아먹으려다가 팥죽을 쑤어주면 봐주겠다고 한 동물이에요.', answer: '호랑이', wrongs: ['곰', '늑대', '여우'] },
+    { tale: '팥죽 할머니와 호랑이', q: '할머니가 동짓날 쑨 것으로, 붉은색의 따뜻한 음식이에요.', answer: '팥죽', wrongs: ['떡국', '미역국', '수제비'] },
+    { tale: '팥죽 할머니와 호랑이', q: '호랑이를 혼내주려고 할머니를 도운 것 중, 부엌에서 굴러와 호랑이를 때린 거예요.', answer: '밤', wrongs: ['감', '배', '콩'] },
+    { tale: '팥죽 할머니와 호랑이', q: '물독 뒤에 숨어 있다가 호랑이 손을 문 것으로, 강가에 사는 작은 동물이에요.', answer: '자라', wrongs: ['개구리', '뱀', '물고기'] },
+    { tale: '팥죽 할머니와 호랑이', q: '호랑이가 미끄러져 넘어지게 만든, 바닥에 뿌려진 것이에요.', answer: '쇠똥', wrongs: ['물', '기름', '모래'] },
+    { tale: '방귀 시합', q: '두 사람이 누가 더 센지 겨룬 것으로, 엉덩이에서 나오는 거예요.', answer: '방귀', wrongs: ['트림', '재채기', '하품'] },
+    { tale: '방귀 시합', q: '방귀 시합에서 너무 센 방귀로 날아가 버린 무거운 물건이에요.', answer: '절구', wrongs: ['항아리', '맷돌', '솥'] },
+    { tale: '방귀 시합', q: '방귀쟁이들이 서로 마주 보고 한 것으로, 힘을 겨루는 거예요.', answer: '시합', wrongs: ['춤', '노래', '공부'] },
+    { tale: '방귀 시합', q: '방귀의 힘으로 이리저리 왔다 갔다 한 무거운 돌 도구예요.', answer: '맷돌', wrongs: ['바위', '기둥', '돌탑'] },
+    { tale: '두꺼비 신랑', q: '못생겼지만 사실은 멋진 신랑이 된, 연못에 사는 동물이에요.', answer: '두꺼비', wrongs: ['개구리', '거북이', '뱀'] },
+    { tale: '두꺼비 신랑', q: '두꺼비가 사람으로 변신해서 된 것으로, 결혼하는 남자예요.', answer: '신랑', wrongs: ['신부', '임금', '장군'] },
+    { tale: '두꺼비 신랑', q: '두꺼비 신랑이 밤이 되면 벗어 던진 것으로, 울퉁불퉁한 거예요.', answer: '허물', wrongs: ['옷', '모자', '신발'] },
+    { tale: '두꺼비 신랑', q: '두꺼비와 결혼한 마음씨 착한 사람으로, 셋째 딸이에요.', answer: '막내딸', wrongs: ['첫째딸', '둘째딸', '아들'] },
+    { tale: '우렁각시', q: '총각이 논에서 주워 집에 가져온 것으로, 안에서 예쁜 색시가 나온 거예요.', answer: '우렁이', wrongs: ['조개', '소라', '고둥'] },
+    { tale: '우렁각시', q: '우렁이 속에서 나와 총각에게 밥을 차려준 존재예요.', answer: '각시', wrongs: ['선녀', '마녀', '공주'] },
+    { tale: '우렁각시', q: '우렁각시가 총각을 위해 몰래 차려놓은 것으로, 매일 먹는 거예요.', answer: '밥상', wrongs: ['옷', '약', '돈'] },
+    { tale: '우렁각시', q: '우렁각시가 처음 들어 있던 곳으로, 물에서 사는 작은 생물의 껍데기예요.', answer: '껍데기', wrongs: ['바구니', '항아리', '상자'] },
+    { tale: '재주꾼 삼형제', q: '삼형제 중 한 명이 가진 재주로, 아주 멀리까지 볼 수 있는 능력이에요.', answer: '천리안', wrongs: ['힘세기', '빨리달리기', '날기'] },
+    { tale: '재주꾼 삼형제', q: '재주꾼 형제들이 힘을 합쳐 구하러 간 사람으로, 잡혀간 여자예요.', answer: '공주', wrongs: ['임금', '장군', '선녀'] },
+    { tale: '재주꾼 삼형제', q: '형제 중 한 명의 재주로, 아주 빠르게 달려가는 능력이에요.', answer: '축지법', wrongs: ['천리안', '힘자랑', '변신술'] },
+    { tale: '재주꾼 삼형제', q: '삼형제처럼 여럿이 힘을 모으는 것을 무엇이라고 할까요?', answer: '협동', wrongs: ['욕심', '싸움', '경쟁'] },
+    { tale: '나무꾼과 호랑이', q: '나무꾼을 잡아먹으려다 형님이라고 불리자 마음이 약해진 동물이에요.', answer: '호랑이', wrongs: ['곰', '늑대', '사자'] },
+    { tale: '나무꾼과 호랑이', q: '나무꾼이 호랑이에게 살아남으려고 호랑이를 무엇이라고 불렀을까요?', answer: '형님', wrongs: ['아버지', '친구', '임금'] },
+    { tale: '나무꾼과 호랑이', q: '호랑이가 효심에 감동해서 나무꾼의 어머니께 가져다 준 것이에요.', answer: '멧돼지', wrongs: ['보물', '꽃', '약초'] },
+    { tale: '나무꾼과 호랑이', q: '나무꾼이 호랑이에게 들려준 이야기로, 돌아가신 형이 호랑이가 되었다는 거짓 사연이에요.', answer: '거짓말', wrongs: ['노래', '수수께끼', '옛날이야기'] },
+    { tale: '개와 고양이', q: '주인을 위해 잃어버린 구슬을 찾으러 강을 헤엄쳐 건넌 동물 둘 중 헤엄친 동물이에요.', answer: '개', wrongs: ['고양이', '토끼', '쥐'] },
+    { tale: '개와 고양이', q: '구슬을 입에 물고 개의 등에 탄 동물이에요.', answer: '고양이', wrongs: ['개', '쥐', '토끼'] },
+    { tale: '개와 고양이', q: '개와 고양이가 함께 되찾으러 간 것으로, 소원을 들어주는 신기한 물건이에요.', answer: '구슬', wrongs: ['반지', '보물', '열쇠'] },
+    { tale: '개와 고양이', q: '개와 고양이가 강을 건널 때 구슬을 떨어뜨린 까닭은 고양이가 무엇을 했기 때문일까요?', answer: '웃음', wrongs: ['노래', '울음', '말'] },
+    { tale: '은혜갚은 까치', q: '선비가 구해준 은혜를 갚으려고 머리로 종을 쳐서 죽은 새예요.', answer: '까치', wrongs: ['제비', '참새', '비둘기'] },
+    { tale: '은혜갚은 까치', q: '까치를 잡아먹으려다 선비의 화살에 맞은 동물이에요.', answer: '구렁이', wrongs: ['호랑이', '여우', '늑대'] },
+    { tale: '은혜갚은 까치', q: '선비가 살아나려면 새벽까지 울려야 했던 것으로, 절에 있는 거예요.', answer: '종', wrongs: ['북', '징', '꽹과리'] },
+    { tale: '은혜갚은 까치', q: '까치가 은혜를 갚으려고 종에 부딪힌 신체 부위는 어디일까요?', answer: '머리', wrongs: ['날개', '발', '부리'] },
+    { tale: '심청전', q: '아버지의 눈을 뜨게 하려고 바닷물에 몸을 던진 효녀예요.', answer: '심청', wrongs: ['콩쥐', '춘향', '선녀'] },
+    { tale: '심청전', q: '심청이의 아버지로, 앞을 보지 못하는 분이에요.', answer: '심봉사', wrongs: ['원님', '나무꾼', '어부'] },
+    { tale: '심청전', q: '심청이가 몸을 던진 곳으로, 뱃사람들이 제물을 바친 바다예요.', answer: '인당수', wrongs: ['연못', '우물', '강'] },
+    { tale: '심청전', q: '심청이가 다시 살아나 들어가게 된 것으로, 바다에 핀 큰 꽃이에요.', answer: '연꽃', wrongs: ['장미', '국화', '해바라기'] },
+    { tale: '심청전', q: '심봉사가 심청이를 다시 만났을 때 일어난 기적으로, 무엇을 다시 뜨게 됐을까요?', answer: '눈', wrongs: ['귀', '입', '다리'] },
+  ],
+  world: [
+    { tale: '빨간 모자', q: '빨간 모자를 쓴 소녀가 음식을 가져다 드리려고 찾아간 사람이에요.', answer: '할머니', wrongs: ['엄마', '이모', '친구'] },
+    { tale: '빨간 모자', q: '할머니로 변장해서 빨간 모자를 속이려 한 무서운 동물이에요.', answer: '늑대', wrongs: ['여우', '곰', '호랑이'] },
+    { tale: '빨간 모자', q: '빨간 모자가 늑대에게 잡아먹힌 할머니와 소녀를 구해준 사람이에요.', answer: '사냥꾼', wrongs: ['나무꾼', '농부', '경찰'] },
+    { tale: '빨간 모자', q: '빨간 모자가 할머니께 가져다 드린 것으로, 바구니에 담은 거예요.', answer: '음식', wrongs: ['꽃', '약', '옷'] },
+    { tale: '빨간 모자', q: '빨간 모자가 늑대를 보고 이상하다고 느낀 할머니의 신체 부위 중, 크다고 한 거예요.', answer: '귀', wrongs: ['코', '손', '발'] },
+    { tale: '빨간 모자', q: '소녀의 이름이 된 것으로, 머리에 쓴 빨간색 물건이에요.', answer: '모자', wrongs: ['치마', '신발', '장갑'] },
+    { tale: '아기돼지 삼형제', q: '아기돼지 삼형제를 잡아먹으려고 집을 후 불어 무너뜨린 동물이에요.', answer: '늑대', wrongs: ['여우', '곰', '호랑이'] },
+    { tale: '아기돼지 삼형제', q: '첫째 돼지가 지은 집으로, 늑대가 훅 불자 날아간 약한 집이에요.', answer: '짚집', wrongs: ['벽돌집', '나무집', '돌집'] },
+    { tale: '아기돼지 삼형제', q: '막내 돼지가 튼튼하게 지어서 늑대도 못 부순 집이에요.', answer: '벽돌집', wrongs: ['짚집', '나무집', '종이집'] },
+    { tale: '아기돼지 삼형제', q: '늑대가 돼지 집을 무너뜨리려고 한 행동으로, 입으로 세게 한 거예요.', answer: '입김', wrongs: ['발길질', '주먹질', '망치질'] },
+    { tale: '아기돼지 삼형제', q: '늑대가 벽돌집에 들어가려고 타고 내려오다 빠진 곳이에요.', answer: '굴뚝', wrongs: ['창문', '문', '지붕'] },
+    { tale: '아기돼지 삼형제', q: '돼지 삼형제 이야기에서 가장 튼튼한 집을 지은 돼지는 몇째일까요?', answer: '셋째', wrongs: ['첫째', '둘째', '넷째'] },
+    { tale: '잭과 콩나무', q: '잭이 소를 팔고 받은 것으로, 심으니 하늘까지 자란 거예요.', answer: '콩', wrongs: ['팥', '쌀', '씨앗'] },
+    { tale: '잭과 콩나무', q: '잭이 콩나무를 타고 올라간 구름 위에 살던 덩치 큰 무서운 존재예요.', answer: '거인', wrongs: ['늑대', '마녀', '용'] },
+    { tale: '잭과 콩나무', q: '거인의 집에서 잭이 훔쳐온 것으로, 황금 알을 낳는 동물이에요.', answer: '닭', wrongs: ['오리', '거위', '비둘기'] },
+    { tale: '잭과 콩나무', q: '잭이 팔러 갔다가 콩과 바꾼 동물이에요.', answer: '소', wrongs: ['돼지', '말', '양'] },
+    { tale: '잭과 콩나무', q: '잭이 거인에게서 도망쳐 내려온 뒤 도끼로 잘라버린 것이에요.', answer: '콩나무', wrongs: ['사다리', '밧줄', '다리'] },
+    { tale: '잭과 콩나무', q: '거인의 집에서 가져온 또 다른 보물로, 저절로 아름다운 소리를 내는 악기예요.', answer: '하프', wrongs: ['피아노', '북', '나팔'] },
+    { tale: '신데렐라', q: '신데렐라가 무도회에서 도망치다 계단에 떨어뜨린 것이에요.', answer: '유리구두', wrongs: ['모자', '장갑', '목걸이'] },
+    { tale: '신데렐라', q: '신데렐라를 도와 예쁜 드레스와 마차를 만들어준 존재예요.', answer: '요정', wrongs: ['선녀', '마녀', '공주'] },
+    { tale: '신데렐라', q: '요정이 마법으로 마차로 변하게 만든 채소예요.', answer: '호박', wrongs: ['수박', '감자', '당근'] },
+    { tale: '신데렐라', q: '신데렐라가 무도회에서 만나 춤춘 사람이에요.', answer: '왕자', wrongs: ['기사', '임금', '신하'] },
+    { tale: '신데렐라', q: '신데렐라의 마법이 풀리는 시간으로, 밤에 종이 울리는 때예요.', answer: '자정', wrongs: ['새벽', '아침', '정오'] },
+    { tale: '신데렐라', q: '신데렐라를 괴롭힌 사람들로, 새엄마가 데려온 못된 자매예요.', answer: '언니들', wrongs: ['친구들', '하녀들', '공주들'] },
+    { tale: '백설공주', q: '백설공주가 깨물고 잠들어 버린 것으로, 마녀가 독을 넣은 과일이에요.', answer: '사과', wrongs: ['배', '복숭아', '포도'] },
+    { tale: '백설공주', q: '백설공주를 질투해서 독사과를 준 사람이에요.', answer: '왕비', wrongs: ['요정', '공주', '하녀'] },
+    { tale: '백설공주', q: '백설공주가 숲속에서 함께 살게 된, 키 작은 일곱 명이에요.', answer: '난쟁이', wrongs: ['요정', '거인', '천사'] },
+    { tale: '백설공주', q: '왕비가 누가 제일 예쁜지 물어본 신기한 물건이에요.', answer: '거울', wrongs: ['그림', '책', '구슬'] },
+    { tale: '백설공주', q: '잠든 백설공주를 깨운 사람으로, 입맞춤을 한 사람이에요.', answer: '왕자', wrongs: ['사냥꾼', '난쟁이', '임금'] },
+    { tale: '백설공주', q: '백설공주와 함께 산 난쟁이는 모두 몇 명일까요?', answer: '일곱', wrongs: ['다섯', '셋', '아홉'] },
+    { tale: '미운 오리 새끼', q: '못생겼다고 놀림받던 새끼가 자라서 변한, 우아하고 하얀 새예요.', answer: '백조', wrongs: ['오리', '거위', '두루미'] },
+    { tale: '미운 오리 새끼', q: '미운 오리 새끼가 처음에 자기를 못생겼다고 생각한 이유로, 다른 새끼들과 무엇이 달라서일까요?', answer: '모습', wrongs: ['소리', '나이', '집'] },
+    { tale: '미운 오리 새끼', q: '미운 오리 새끼가 태어난 곳으로, 어미가 알을 품던 곳이에요.', answer: '둥지', wrongs: ['나무', '동굴', '집'] },
+    { tale: '미운 오리 새끼', q: '미운 오리 새끼가 물에 비친 자기 모습을 보고 알게 된 것은 자신이 무엇이 되었다는 거예요.', answer: '백조', wrongs: ['오리', '독수리', '비둘기'] },
+    { tale: '인어공주', q: '바닷속에 사는 공주로, 다리 대신 물고기 꼬리를 가진 존재예요.', answer: '인어', wrongs: ['선녀', '요정', '마녀'] },
+    { tale: '인어공주', q: '인어공주가 사람이 되려고 목소리를 준 대가로 도움을 받은 존재예요.', answer: '마녀', wrongs: ['요정', '선녀', '공주'] },
+    { tale: '인어공주', q: '인어공주가 사랑에 빠진 사람으로, 바다에서 구해준 사람이에요.', answer: '왕자', wrongs: ['어부', '선원', '임금'] },
+    { tale: '인어공주', q: '인어공주가 사람이 되기 위해 마녀에게 준 것으로, 노래하는 데 쓰는 거예요.', answer: '목소리', wrongs: ['머리카락', '꼬리', '눈물'] },
+    { tale: '인어공주', q: '인어공주가 사는 곳으로, 깊고 파란 물속이에요.', answer: '바다', wrongs: ['강', '호수', '연못'] },
+    { tale: '피노키오', q: '거짓말을 하면 길어지는 신체 부위를 가진 나무 인형이에요.', answer: '코', wrongs: ['귀', '입', '손'] },
+    { tale: '피노키오', q: '피노키오를 만든 사람으로, 나무를 깎아 인형을 만든 할아버지예요.', answer: '목수', wrongs: ['대장장이', '화가', '농부'] },
+    { tale: '피노키오', q: '피노키오가 거짓말을 할 때마다 길어진 부분이에요.', answer: '코', wrongs: ['다리', '팔', '목'] },
+    { tale: '피노키오', q: '피노키오를 도와주고 진짜 아이가 되게 해준 존재예요.', answer: '요정', wrongs: ['마녀', '선녀', '천사'] },
+    { tale: '피노키오', q: '피노키오와 할아버지가 갇혔던 곳으로, 바닷속 아주 큰 동물의 배 속이에요.', answer: '고래', wrongs: ['상어', '문어', '거북이'] },
+    { tale: '개미와 베짱이', q: '여름 내내 열심히 일해서 겨울에 먹을 것을 모은 곤충이에요.', answer: '개미', wrongs: ['베짱이', '나비', '벌'] },
+    { tale: '개미와 베짱이', q: '여름에 노래만 부르다가 겨울에 먹을 것이 없어진 곤충이에요.', answer: '베짱이', wrongs: ['개미', '매미', '귀뚜라미'] },
+    { tale: '개미와 베짱이', q: '개미가 여름에 부지런히 모은 것으로, 겨울에 먹을 거예요.', answer: '식량', wrongs: ['노래', '악기', '옷'] },
+    { tale: '개미와 베짱이', q: '베짱이가 여름 내내 한 것으로, 일하지 않고 즐긴 거예요.', answer: '노래', wrongs: ['일', '공부', '청소'] },
+    { tale: '개미와 베짱이', q: '이 이야기가 주는 교훈으로, 미리미리 준비하는 자세를 무엇이라 할까요?', answer: '부지런함', wrongs: ['게으름', '욕심', '거짓말'] },
+    { tale: '브레멘 음악대', q: '브레멘으로 음악대가 되러 떠난 동물들 중, 멍멍 짖는 동물이에요.', answer: '개', wrongs: ['고양이', '닭', '당나귀'] },
+    { tale: '브레멘 음악대', q: '음악대 동물들이 힘을 합쳐 쫓아낸 나쁜 사람들이에요.', answer: '도둑', wrongs: ['사냥꾼', '군인', '마녀'] },
+    { tale: '브레멘 음악대', q: '음악대 동물 중 가장 덩치가 크고 짐을 나르던 동물이에요.', answer: '당나귀', wrongs: ['개', '고양이', '닭'] },
+    { tale: '브레멘 음악대', q: '동물들이 되고 싶었던 것으로, 악기를 연주하는 무리예요.', answer: '음악대', wrongs: ['군대', '경찰', '농부'] },
+    { tale: '브레멘 음악대', q: '음악대 동물 중 야옹하고 우는 동물이에요.', answer: '고양이', wrongs: ['개', '닭', '쥐'] },
+    { tale: '헨젤과 그레텔', q: '남매가 숲에서 길을 찾으려고 떨어뜨린 것으로, 빵을 잘게 부순 거예요.', answer: '빵조각', wrongs: ['돌멩이', '나뭇잎', '실'] },
+    { tale: '헨젤과 그레텔', q: '숲속에서 남매를 유인한 것으로, 먹을 것으로 만들어진 집이에요.', answer: '과자집', wrongs: ['벽돌집', '통나무집', '얼음집'] },
+    { tale: '헨젤과 그레텔', q: '과자집에 살면서 남매를 잡아먹으려 한 못된 존재예요.', answer: '마녀', wrongs: ['늑대', '거인', '도둑'] },
+    { tale: '헨젤과 그레텔', q: '헨젤과 그레텔은 서로 어떤 사이일까요?', answer: '남매', wrongs: ['친구', '사촌', '이웃'] },
+    { tale: '헨젤과 그레텔', q: '그레텔이 마녀를 밀어 넣어 물리친 곳으로, 불이 있는 곳이에요.', answer: '화덕', wrongs: ['우물', '연못', '동굴'] },
+    { tale: '장화 신은 고양이', q: '주인을 부자로 만들어준 똑똑한 동물로, 장화를 신은 거예요.', answer: '고양이', wrongs: ['개', '여우', '토끼'] },
+    { tale: '장화 신은 고양이', q: '고양이가 신고 다닌 것으로, 발에 신는 긴 신발이에요.', answer: '장화', wrongs: ['운동화', '구두', '샌들'] },
+    { tale: '장화 신은 고양이', q: '고양이가 꾀를 내어 물리친, 변신할 수 있는 무서운 존재예요.', answer: '마법사', wrongs: ['거인', '마녀', '용'] },
+    { tale: '장화 신은 고양이', q: '고양이가 마법사에게 작은 동물로 변해보라고 한 것으로, 고양이가 잡아먹은 거예요.', answer: '쥐', wrongs: ['새', '벌레', '물고기'] },
+    { tale: '엄지공주', q: '꽃 속에서 태어난 아주 작은 소녀로, 엄지손가락만 한 크기예요.', answer: '엄지공주', wrongs: ['인어공주', '백설공주', '신데렐라'] },
+    { tale: '엄지공주', q: '엄지공주가 추운 겨울에 도와준 친구로, 다친 채 쓰러져 있던 새예요.', answer: '제비', wrongs: ['참새', '비둘기', '까치'] },
+    { tale: '엄지공주', q: '엄지공주가 태어난 곳으로, 예쁘게 핀 식물이에요.', answer: '꽃', wrongs: ['나무', '풀', '열매'] },
+    { tale: '엄지공주', q: '엄지공주를 데려가 신부로 삼으려 한, 땅속에 사는 동물이에요.', answer: '두더지', wrongs: ['쥐', '개구리', '뱀'] },
+    { tale: '성냥팔이 소녀', q: '추운 겨울밤에 길에서 성냥을 팔던 가여운 아이예요.', answer: '소녀', wrongs: ['소년', '공주', '왕자'] },
+    { tale: '성냥팔이 소녀', q: '소녀가 추위를 견디려고 하나씩 켠 것이에요.', answer: '성냥', wrongs: ['촛불', '난로', '장작'] },
+    { tale: '성냥팔이 소녀', q: '소녀가 성냥불 속에서 본 그리운 사람으로, 돌아가신 분이에요.', answer: '할머니', wrongs: ['엄마', '아빠', '친구'] },
+    { tale: '성냥팔이 소녀', q: '성냥팔이 소녀 이야기의 계절로, 춥고 눈이 오는 때예요.', answer: '겨울', wrongs: ['여름', '봄', '가을'] },
+    { tale: '피터팬', q: '어른이 되지 않고 영원히 아이로 사는 소년이에요.', answer: '피터팬', wrongs: ['피노키오', '잭', '헨젤'] },
+    { tale: '피터팬', q: '피터팬과 친구들이 사는 곳으로, 어른이 없는 신기한 섬이에요.', answer: '네버랜드', wrongs: ['원더랜드', '드림랜드', '오즈'] },
+    { tale: '피터팬', q: '피터팬의 작은 요정 친구로, 반짝이는 가루를 뿌리는 존재예요.', answer: '팅커벨', wrongs: ['요정', '선녀', '천사'] },
+    { tale: '피터팬', q: '피터팬과 싸우는 나쁜 해적으로, 한 손이 갈고리인 사람이에요.', answer: '후크선장', wrongs: ['블랙비어드', '롱존', '드레이크'] },
+    { tale: '피터팬', q: '피터팬처럼 하늘을 날려면 요정 가루와 무엇이 필요할까요?', answer: '믿음', wrongs: ['용기', '돈', '힘'] },
+    { tale: '알라딘', q: '알라딘이 동굴에서 발견한 것으로, 문지르면 소원을 들어주는 거예요.', answer: '램프', wrongs: ['반지', '구슬', '상자'] },
+    { tale: '알라딘', q: '램프를 문지르면 나타나 소원을 들어주는 거대한 존재예요.', answer: '지니', wrongs: ['요정', '마녀', '거인'] },
+    { tale: '알라딘', q: '알라딘이 타고 하늘을 난 것으로, 펄럭이며 나는 깔개예요.', answer: '양탄자', wrongs: ['구름', '새', '마차'] },
+    { tale: '알라딘', q: '알라딘이 사랑한 사람으로, 나라의 공주예요.', answer: '공주', wrongs: ['선녀', '마녀', '하녀'] },
+    { tale: '알라딘', q: '지니가 한 사람에게 들어주는 소원은 모두 몇 가지일까요?', answer: '세가지', wrongs: ['한가지', '다섯가지', '열가지'] },
+    { tale: '오즈의 마법사', q: '도로시가 회오리바람에 휩쓸려 도착한 신기한 나라예요.', answer: '오즈', wrongs: ['네버랜드', '원더랜드', '나니아'] },
+    { tale: '오즈의 마법사', q: '도로시와 함께 길을 떠난 친구 중, 뇌가 갖고 싶었던 존재예요.', answer: '허수아비', wrongs: ['사자', '나무꾼', '마녀'] },
+    { tale: '오즈의 마법사', q: '심장을 갖고 싶어 한, 쇠로 만들어진 친구예요.', answer: '양철나무꾼', wrongs: ['허수아비', '사자', '마법사'] },
+    { tale: '오즈의 마법사', q: '용기를 갖고 싶어 한 동물 친구예요.', answer: '사자', wrongs: ['호랑이', '곰', '늑대'] },
+    { tale: '오즈의 마법사', q: '도로시가 집으로 돌아가려고 찾아간, 마법을 부린다는 존재예요.', answer: '마법사', wrongs: ['마녀', '요정', '임금'] },
+    { tale: '빨강머리 앤', q: '초록 지붕 집에 입양된, 상상력이 풍부한 빨간 머리 소녀예요.', answer: '앤', wrongs: ['도로시', '앨리스', '하이디'] },
+    { tale: '빨강머리 앤', q: '앤이 살게 된 집의 색깔로, 지붕이 이 색이에요.', answer: '초록', wrongs: ['빨강', '파랑', '노랑'] },
+    { tale: '빨강머리 앤', q: '앤의 가장 친한 친구로, 단짝을 부르는 말이에요.', answer: '단짝', wrongs: ['언니', '사촌', '이웃'] },
+    { tale: '빨강머리 앤', q: '앤의 특징인 머리 색깔이에요.', answer: '빨강', wrongs: ['검정', '노랑', '갈색'] },
+    { tale: '알리바바와 40인의 도둑', q: '도둑들의 보물 동굴 문을 여는 주문이에요.', answer: '열려라참깨', wrongs: ['수리수리', '아브라카다브라', '뚝딱'] },
+    { tale: '알리바바와 40인의 도둑', q: '알리바바가 발견한, 도둑들이 보물을 숨겨둔 곳이에요.', answer: '동굴', wrongs: ['성', '배', '집'] },
+    { tale: '알리바바와 40인의 도둑', q: '동굴에 보물을 숨긴 나쁜 무리는 모두 몇 명일까요?', answer: '사십명', wrongs: ['열명', '스무명', '백명'] },
+    { tale: '알리바바와 40인의 도둑', q: '도둑들이 동굴에 숨겨둔 것으로, 금은보화를 말해요.', answer: '보물', wrongs: ['음식', '무기', '옷'] },
+    { tale: '엄지동자', q: '주먹이나 엄지손가락만큼 작은 아이를 부르는 말이에요.', answer: '엄지동자', wrongs: ['거인', '난쟁이', '요정'] },
+    { tale: '엄지동자', q: '엄지동자처럼 아주 작은 것을 표현하는 신체 부위예요.', answer: '엄지', wrongs: ['주먹', '발', '머리'] },
+    { tale: '엄지동자', q: '작은 엄지동자가 꾀로 물리치는 덩치 큰 상대예요.', answer: '거인', wrongs: ['늑대', '마녀', '도둑'] },
+    { tale: '엄지동자', q: '엄지동자 이야기처럼 작아도 무엇으로 어려움을 이겨낼 수 있을까요?', answer: '지혜', wrongs: ['힘', '돈', '울음'] },
+  ],
+};
+
+const descQuizData = [
+  { q: '이 동물은 멍멍하고 짖어요. 사람과 가장 친한 친구이고, 꼬리를 흔들며 반가워해요. 집을 지켜주기도 해요.', word: '강아지', emoji: '🐶' },
+  { q: '이 동물은 야옹하고 울어요. 부드러운 털을 가졌고, 쥐를 잘 잡아요. 그르렁 소리를 내며 잠을 자요.', word: '고양이', emoji: '🐱' },
+  { q: '이 동물은 갈기가 멋진 동물의 왕이에요. 어흥하고 크게 울부짖고, 초원에서 살아요.', word: '사자', emoji: '🦁' },
+  { q: '이 동물은 주황색 몸에 검은 줄무늬가 있어요. 아주 힘이 세고 무서운 숲속의 사냥꾼이에요.', word: '호랑이', emoji: '🐯' },
+  { q: '이 동물은 귀가 길고 깡총깡총 뛰어다녀요. 당근을 좋아하고, 앞니가 길어요.', word: '토끼', emoji: '🐰' },
+  { q: '이 동물은 코가 아주 길어요. 몸집이 아주 크고, 큰 귀를 부채처럼 흔들어요. 코로 물을 마셔요.', word: '코끼리', emoji: '🐘' },
+  { q: '이 동물은 목이 아주 길어서 높은 나무의 잎도 먹을 수 있어요. 몸에 갈색 무늬가 있어요.', word: '기린', emoji: '🦒' },
+  { q: '이 동물은 남극의 추운 곳에 살아요. 까만색과 하얀색 옷을 입은 것 같고, 뒤뚱뒤뚱 걸어요. 헤엄을 잘 쳐요.', word: '펭귄', emoji: '🐧' },
+  { q: '이 동물은 연못에서 살아요. 폴짝폴짝 뛰고 개굴개굴 울어요. 긴 혀로 벌레를 잡아먹어요.', word: '개구리', emoji: '🐸' },
+  { q: '이 동물은 분홍색이고 꿀꿀 소리를 내요. 코가 납작하고 둥글며, 진흙에서 뒹구는 걸 좋아해요.', word: '돼지', emoji: '🐷' },
+  { q: '이 동물은 꼬끼오 하고 울어요. 아침을 알려주고, 알을 낳아요. 머리에 빨간 볏이 있어요.', word: '닭', emoji: '🐔' },
+  { q: '이 동물은 꼬리가 풍성하고 빨간 털을 가졌어요. 꾀가 많기로 유명하고, 뾰족한 귀를 가졌어요.', word: '여우', emoji: '🦊' },
+  { q: '이 동물은 까만색과 하얀색 줄무늬가 온몸에 있어요. 말과 비슷하게 생겼고 초원을 달려요.', word: '얼룩말', emoji: '🦓' },
+  { q: '이 동물은 바다에 살고 아주 똑똑해요. 점프를 잘하고 휘파람 같은 소리를 내요. 친구를 좋아해요.', word: '돌고래', emoji: '🐬' },
+  { q: '이 동물은 등에 단단한 껍데기 집을 메고 다녀요. 아주 천천히 움직이고, 오래 살아요.', word: '거북이', emoji: '🐢' },
+  { q: '이 곤충은 알록달록 예쁜 날개로 꽃 사이를 날아다녀요. 애벌레가 자라서 이렇게 변해요.', word: '나비', emoji: '🦋' },
+  { q: '이 곤충은 윙윙거리며 날아다녀요. 꽃에서 꿀을 모으고, 노란색과 검은색 줄무늬가 있어요.', word: '벌', emoji: '🐝' },
+  { q: '이 동물은 꽥꽥 울고 물에서 헤엄쳐요. 부리가 납작하고, 발에 물갈퀴가 있어요.', word: '오리', emoji: '🦆' },
+  { q: '이 동물은 음매 하고 울어요. 우유를 만들어주고, 풀을 먹어요. 농장에서 키워요.', word: '소', emoji: '🐮' },
+  { q: '이 동물은 히힝 울고 아주 빠르게 달려요. 사람을 등에 태우고, 갈기와 긴 꼬리가 있어요.', word: '말', emoji: '🐴' },
+  { q: '이 동물은 등에 혹이 있어요. 사막에서 살고, 물 없이도 오래 견딜 수 있어요.', word: '낙타', emoji: '🐫' },
+  { q: '이 동물은 주머니에 아기를 넣고 다녀요. 뒷다리로 콩콩 뛰어다니고, 호주에 살아요.', word: '캥거루', emoji: '🦘' },
+  { q: '이 동물은 도토리를 좋아해요. 나무를 잘 타고, 꼬리가 복슬복슬해요. 볼에 먹이를 저장해요.', word: '다람쥐', emoji: '🐿️' },
+  { q: '이 동물은 바다에서 가장 커요. 물을 위로 뿜어 올리고, 아주 큰 소리로 노래해요.', word: '고래', emoji: '🐳' },
+  { q: '이 동물은 바다에 살고 이빨이 아주 무서워요. 지느러미로 빠르게 헤엄치는 사냥꾼이에요.', word: '상어', emoji: '🦈' },
+  { q: '이 동물은 다리가 여덟 개예요. 바닷속에 살고, 위험할 때 먹물을 뿜어요.', word: '문어', emoji: '🐙' },
+  { q: '이 동물은 밤에 부엉부엉 울어요. 고개를 빙 돌릴 수 있고, 큰 눈으로 어둠 속을 잘 봐요.', word: '부엉이', emoji: '🦉' },
+  { q: '이 동물은 하늘 높이 날아요. 날카로운 눈과 발톱을 가진 새들의 왕이에요.', word: '독수리', emoji: '🦅' },
+  { q: '이 동물은 알록달록한 깃털을 가졌어요. 사람 말을 따라 할 수 있는 똑똑한 새예요.', word: '앵무새', emoji: '🦜' },
+  { q: '이 동물은 털이 복슬복슬해요. 메에 하고 울고, 털로 따뜻한 옷을 만들 수 있어요.', word: '양', emoji: '🐑' },
+  { q: '이 동물은 뿔이 나뭇가지처럼 멋지게 자라요. 숲속을 뛰어다니고, 다리가 가늘고 길어요.', word: '사슴', emoji: '🦌' },
+  { q: '이 작은 동물은 찍찍 울어요. 치즈를 좋아하고, 아주 작고 빠르게 움직여요.', word: '쥐', emoji: '🐭' },
+  { q: '이 동물은 까만색과 하얀색 털을 가진 곰이에요. 대나무를 좋아하고, 중국에 살아요.', word: '판다', emoji: '🐼' },
+  { q: '이 곤충은 빨간 등에 까만 점이 있어요. 아주 작고, 잎 위를 천천히 기어다녀요.', word: '무당벌레', emoji: '🐞' },
+  { q: '이 동물은 옆으로 걸어다녀요. 단단한 껍질과 집게발을 가졌고, 바닷가에서 볼 수 있어요.', word: '게', emoji: '🦀' },
+  { q: '이것은 빨갛고 동그란 과일이에요. 아삭하고 달콤하며, 의사를 멀리하게 해준다는 말이 있어요.', word: '사과', emoji: '🍎' },
+  { q: '이것은 노랗고 길쭉한 과일이에요. 껍질을 벗겨서 먹고, 원숭이가 가장 좋아해요.', word: '바나나', emoji: '🍌' },
+  { q: '이것은 빨갛고 작은 과일이에요. 표면에 작은 씨가 콕콕 박혀 있고, 새콤달콤해요.', word: '딸기', emoji: '🍓' },
+  { q: '이것은 초록색 껍질에 빨간 속살이 있는 큰 과일이에요. 여름에 시원하게 먹고, 까만 씨가 있어요.', word: '수박', emoji: '🍉' },
+  { q: '이것은 보라색 작은 알맹이가 송이로 달려 있어요. 한 알씩 떼어 먹고, 달콤해요.', word: '포도', emoji: '🍇' },
+  { q: '이것은 노랗고 아주 시큼한 과일이에요. 너무 시어서 먹으면 얼굴이 찌푸려져요.', word: '레몬', emoji: '🍋' },
+  { q: '이것은 밀가루로 만든 부드러운 음식이에요. 아침에 자주 먹고, 잼이나 버터를 발라 먹어요.', word: '빵', emoji: '🍞' },
+  { q: '이것은 하얀색 음료예요. 소에서 나오고, 뼈를 튼튼하게 해줘요. 아침에 마시면 좋아요.', word: '우유', emoji: '🥛' },
+  { q: '이것은 생일에 먹는 달콤한 디저트예요. 촛불을 꽂고 소원을 빌어요.', word: '케이크', emoji: '🎂' },
+  { q: '이것은 차갑고 달콤한 간식이에요. 더운 여름에 먹으면 시원하고, 콘에 담아 먹기도 해요.', word: '아이스크림', emoji: '🍦' },
+  { q: '이것은 동그랗고 납작한 음식이에요. 위에 치즈와 토핑이 가득하고, 조각으로 잘라 먹어요.', word: '피자', emoji: '🍕' },
+  { q: '이것은 빵 사이에 고기와 채소를 끼운 음식이에요. 손으로 들고 먹고, 감자튀김과 잘 어울려요.', word: '햄버거', emoji: '🍔' },
+  { q: '이것은 주황색이고 길쭉한 채소예요. 토끼가 좋아하고, 땅속에서 자라요. 눈에 좋아요.', word: '당근', emoji: '🥕' },
+  { q: '이것은 노란 알맹이가 가득한 채소예요. 길쭉하고, 삶거나 구워 먹어요.', word: '옥수수', emoji: '🌽' },
+  { q: '이것은 닭이 낳는 동그란 음식이에요. 깨뜨려서 프라이를 하거나 삶아 먹어요.', word: '계란', emoji: '🍳' },
+  { q: '이것은 동그랗고 가운데 구멍이 뚫린 빵이에요. 달콤하고, 위에 설탕이나 초콜릿이 묻어 있어요.', word: '도넛', emoji: '🍩' },
+  { q: '이것은 갈색이고 달콤한 간식이에요. 입에서 사르르 녹고, 많이 먹으면 이가 썩어요.', word: '초콜릿', emoji: '🍫' },
+  { q: '이것은 막대에 꽂힌 동그란 사탕이에요. 알록달록하고, 오래 빨아 먹어요.', word: '막대사탕', emoji: '🍭' },
+  { q: '이것은 벌이 꽃에서 모아 만든 달콤한 음식이에요. 끈끈하고 노란색이며, 빵에 발라 먹어요.', word: '꿀', emoji: '🍯' },
+  { q: '이것은 옥수수가 뜨거운 곳에서 뻥 하고 터진 간식이에요. 영화 볼 때 자주 먹어요.', word: '팝콘', emoji: '🍿' },
+  { q: '이것은 뜨거운 국물에 면이 들어 있는 음식이에요. 후루룩 소리를 내며 먹어요.', word: '국수', emoji: '🍜' },
+  { q: '이것은 우산처럼 생겨서 자라는 음식이에요. 숲속이나 나무 밑에서 자라요.', word: '버섯', emoji: '🍄' },
+  { q: '이것은 따뜻하게 마시는 음료예요. 잎을 우려서 만들고, 어른들이 즐겨 마셔요.', word: '차', emoji: '🍵' },
+  { q: '이것은 노랗고 우유로 만든 음식이에요. 고소하고, 피자나 빵에 올려 먹어요.', word: '치즈', emoji: '🧀' },
+  { q: '이것은 바삭하고 달콤한 과자예요. 동글납작하고, 우유와 함께 먹으면 맛있어요.', word: '쿠키', emoji: '🍪' },
+  { q: '이것은 빨갛고 동그란 채소예요. 샐러드에 넣거나 케첩을 만들고, 즙이 많아요.', word: '토마토', emoji: '🍅' },
+  { q: '이것은 뾰족한 잎이 위에 달린 노란 과일이에요. 겉은 거칠고, 속은 달콤하고 시원해요.', word: '파인애플', emoji: '🍍' },
+  { q: '이것은 분홍색이고 보드라운 과일이에요. 솜털이 있고, 향기가 좋고 달콤해요.', word: '복숭아', emoji: '🍑' },
+  { q: '이것은 초록색 나무 모양의 채소예요. 작은 꽃봉오리처럼 생겼고, 몸에 아주 좋아요.', word: '브로콜리', emoji: '🥦' },
+  { q: '이것은 갈색이고 땅속에서 자라는 채소예요. 삶거나 튀겨 먹고, 동그랗게 생겼어요.', word: '감자', emoji: '🥔' },
+  { q: '이것은 낮에 하늘에서 환하게 빛나요. 따뜻한 빛을 보내주고, 너무 밝아서 똑바로 보면 안 돼요.', word: '해', emoji: '☀️' },
+  { q: '이것은 밤하늘에 떠 있어요. 모양이 매일 조금씩 바뀌고, 둥글 때도 있고 가늘 때도 있어요.', word: '달', emoji: '🌙' },
+  { q: '이것은 밤하늘에서 반짝반짝 빛나요. 아주 멀리 있고, 셀 수 없이 많아요.', word: '별', emoji: '⭐' },
+  { q: '이것은 하늘에 떠 있는 솜뭉치 같아요. 하얗고 폭신해 보이며, 비가 오기 전에 어두워져요.', word: '구름', emoji: '☁️' },
+  { q: '이것은 비가 온 뒤에 하늘에 생겨요. 일곱 가지 색깔로 둥글게 휘어진 다리 모양이에요.', word: '무지개', emoji: '🌈' },
+  { q: '이것은 하늘에서 떨어지는 물방울이에요. 우산을 써야 하고, 식물이 자라는 데 필요해요.', word: '비', emoji: '🌧️' },
+  { q: '이것은 겨울에 하늘에서 내리는 하얀 거예요. 차갑고, 쌓이면 눈사람을 만들 수 있어요.', word: '눈', emoji: '❄️' },
+  { q: '이것은 뜨겁고 빨갛게 타올라요. 따뜻하게 해주지만, 만지면 위험해요.', word: '불', emoji: '🔥' },
+  { q: '이것은 파랗고 아주 넓은 물이에요. 짠맛이 나고, 파도가 치며, 물고기가 살아요.', word: '바다', emoji: '🌊' },
+  { q: '이것은 키가 크고 잎이 무성해요. 나무 열매와 그늘을 주고, 새들이 둥지를 틀어요.', word: '나무', emoji: '🌳' },
+  { q: '이것은 예쁘게 피어나고 좋은 향기가 나요. 벌과 나비가 찾아오고, 봄에 많이 펴요.', word: '꽃', emoji: '🌸' },
+  { q: '이것은 해를 닮은 노랗고 큰 꽃이에요. 키가 아주 크고, 씨앗을 먹을 수 있어요.', word: '해바라기', emoji: '🌻' },
+  { q: '이것은 가시가 있고 사막에서 자라요. 물이 적어도 잘 살고, 통통한 모양이에요.', word: '선인장', emoji: '🌵' },
+  { q: '이것은 번쩍하고 빛나며 천둥과 함께 와요. 하늘에서 갈라지듯 내리치고, 아주 위험해요.', word: '번개', emoji: '⚡' },
+  { q: '이것은 가을에 빨갛고 노랗게 물든 잎이에요. 손바닥 모양이고, 가을을 대표해요.', word: '단풍잎', emoji: '🍁' },
+  { q: '이것은 바퀴 네 개로 길 위를 달려요. 사람을 태우고, 운전대를 돌려서 움직여요.', word: '자동차', emoji: '🚗' },
+  { q: '이것은 하늘을 날아다녀요. 날개가 있고, 아주 멀리 빠르게 갈 수 있어요. 공항에서 타요.', word: '비행기', emoji: '✈️' },
+  { q: '이것은 두 바퀴로 페달을 밟아서 가요. 균형을 잡아야 하고, 운동이 돼요.', word: '자전거', emoji: '🚲' },
+  { q: '이것은 긴 칸들이 이어져서 철길 위를 달려요. 칙칙폭폭 소리를 내며 많은 사람을 태워요.', word: '기차', emoji: '🚂' },
+  { q: '이것은 빨간색이고 불을 끄러 가요. 사이렌을 울리며 빠르게 달리고, 긴 호스가 있어요.', word: '소방차', emoji: '🚒' },
+  { q: '이것은 우주로 날아가는 거예요. 아주 빠르고, 불을 뿜으며 하늘 높이 올라가요.', word: '로켓', emoji: '🚀' },
+  { q: '이것은 물 위를 떠다녀요. 바람을 받는 돛이나 엔진으로 움직이고, 바다를 건너요.', word: '배', emoji: '⛵' },
+  { q: '이것은 위에서 프로펠러가 돌아가며 하늘로 떠올라요. 좁은 곳에도 내릴 수 있어요.', word: '헬리콥터', emoji: '🚁' },
+  { q: '이것은 많은 사람을 태우고 정해진 길을 달려요. 정류장에서 타고 내려요.', word: '버스', emoji: '🚌' },
+  { q: '이것은 아픈 사람을 병원으로 빠르게 데려가요. 사이렌을 울리고, 빨간 십자 표시가 있어요.', word: '구급차', emoji: '🚑' },
+  { q: '이것은 시간을 알려줘요. 바늘이 돌아가거나 숫자가 보이고, 아침에 알람으로 깨워줘요.', word: '시계', emoji: '⏰' },
+  { q: '이것은 비가 올 때 펴서 머리 위로 들어요. 비를 막아주고, 접었다 폈다 할 수 있어요.', word: '우산', emoji: '☂️' },
+  { q: '이것은 생일이나 특별한 날에 받으면 기뻐요. 예쁜 포장지로 싸여 있고, 리본이 달려 있어요.', word: '선물', emoji: '🎁' },
+  { q: '이것은 공기를 넣으면 둥글게 부풀어요. 두둥실 떠다니고, 터지면 펑 소리가 나요.', word: '풍선', emoji: '🎈' },
+  { q: '이것은 글자가 가득한 거예요. 한 장씩 넘기며 읽고, 새로운 것을 배울 수 있어요.', word: '책', emoji: '📚' },
+  { q: '이것은 안고 자는 푹신한 친구예요. 곰이나 토끼 모양이 많고, 아이들이 좋아해요.', word: '인형', emoji: '🧸' },
+  { q: '이것은 동그랗고 발로 차거나 손으로 던져요. 운동할 때 쓰고, 굴러다녀요.', word: '공', emoji: '⚽' },
+  { q: '이것은 두드리면 둥둥 소리가 나는 악기예요. 손이나 막대로 치고, 가죽이 팽팽해요.', word: '북', emoji: '🥁' },
+  { q: '이것은 불을 밝혀주는 거예요. 어두운 곳을 환하게 비추고, 스위치로 켜고 꺼요.', word: '전구', emoji: '💡' },
+  { q: '이것은 사진을 찍는 도구예요. 찰칵 소리가 나고, 추억을 남길 수 있어요.', word: '카메라', emoji: '📷' },
+];
+
+
 // === 영구 저장 ===
 const STORAGE_KEY = 'dingdong-hangul-v2';
 let appData = {
@@ -1875,8 +2253,14 @@ let currentQuiz = null;
 let lastQuizWord = null;
 let score1 = 0;
 let score2 = 0;
+let score3 = 0;
 let combo1 = 0;
 let combo2 = 0;
+let combo3 = 0;
+let currentQuiz2 = null;
+let lastQuiz2Key = null;
+let quiz2Type = null; // 'tale' or 'desc'
+let quiz2Category = null;
 let audioCtx = null;
 let bgmNodes = null;
 let isAnimating = false;
@@ -2224,19 +2608,24 @@ function getWordPool(category) {
 // === 페이지 전환 ===
 function goToPage(n) {
   currentPage = n;
-  document.getElementById('pageContainer').classList.toggle('page-1', n === 1);
+  // 3페이지 슬라이더: 각 페이지는 100vw, n번째로 이동
+  document.getElementById('pageContainer').style.transform = `translateX(-${n * 100}vw)`;
   document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === n));
   document.getElementById('prevPage').classList.toggle('hidden', n === 0);
-  document.getElementById('nextPage').classList.toggle('hidden', n === 1);
+  document.getElementById('nextPage').classList.toggle('hidden', n === 2);
 }
 
 // === 콤보 표시 ===
 function updateComboBadge(mode) {
-  const combo = mode === 'reading' ? combo1 : combo2;
-  const badge = document.getElementById(mode === 'reading' ? 'combo1' : 'combo2');
-  const num = document.getElementById(mode === 'reading' ? 'comboNum1' : 'comboNum2');
-  if (combo >= 2) {
-    num.textContent = combo;
+  const map = {
+    reading: { combo: combo1, badge: 'combo1', num: 'comboNum1' },
+    quiz:    { combo: combo2, badge: 'combo2', num: 'comboNum2' },
+    quiz2:   { combo: combo3, badge: 'combo3', num: 'comboNum3' },
+  }[mode];
+  const badge = document.getElementById(map.badge);
+  const num = document.getElementById(map.num);
+  if (map.combo >= 2) {
+    num.textContent = map.combo;
     badge.classList.remove('show');
     void badge.offsetWidth;
     badge.classList.add('show');
@@ -2306,7 +2695,7 @@ function updateProgressBars(opts = {}) {
   const next = getNextUnearnedReward();
   const hasRewards = appData.rewards.length > 0;
 
-  ['1', '2'].forEach(n => {
+  ['1', '2', '3'].forEach(n => {
     const wrapper = document.getElementById('stickerProgress' + n);
     if (!wrapper) return;
 
@@ -2631,11 +3020,133 @@ function selectQuizOption(btn, option) {
   }
 }
 
+// === 게임 3: 어떤 그림일까? II (동화 + 묘사) ===
+function startQuiz2Game(type, category) {
+  currentMode = 'quiz2';
+  quiz2Type = type;       // 'tale' or 'desc'
+  quiz2Category = category;
+  score3 = 0;
+  combo3 = 0;
+  document.getElementById('score3').textContent = '0';
+  document.getElementById('combo3').classList.remove('show');
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('quiz2-screen').classList.add('active');
+  updateProgressBars();
+  nextQuiz2();
+}
+
+function getTalePool() {
+  if (quiz2Category === 'korean') return taleQuizData.korean;
+  if (quiz2Category === 'world') return taleQuizData.world;
+  return [...taleQuizData.korean, ...taleQuizData.world]; // all
+}
+
+function nextQuiz2() {
+  const card = document.getElementById('quiz2Card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'cardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+  if (quiz2Type === 'tale') {
+    nextTaleQuestion();
+  } else {
+    nextDescQuestion();
+  }
+}
+
+// 동화 문제 (글자 보기형)
+function nextTaleQuestion() {
+  const pool = getTalePool();
+  if (pool.length < 1) return;
+
+  let item;
+  do {
+    item = pool[Math.floor(Math.random() * pool.length)];
+  } while (pool.length > 1 && lastQuiz2Key === item.q);
+  lastQuiz2Key = item.q;
+  currentQuiz2 = { answer: item.answer };
+
+  // 동화 제목 표시
+  const titleEl = document.getElementById('quiz2TaleTitle');
+  titleEl.style.display = 'inline-block';
+  titleEl.textContent = '📖 ' + item.tale;
+  document.getElementById('quiz2Icon').style.display = 'none';
+  document.getElementById('quiz2Question').textContent = item.q;
+
+  // 보기: 정답 + 오답3 (글자만)
+  const options = [item.answer, ...item.wrongs].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('quiz2OptionsGrid');
+  grid.innerHTML = '';
+  options.forEach((word) => {
+    const btn = document.createElement('div');
+    btn.className = 'option text-only';
+    btn.innerHTML = `<div class="option-word">${word}</div>`;
+    btn.addEventListener('click', () => selectQuiz2Option(btn, { word }));
+    grid.appendChild(btn);
+  });
+}
+
+// 묘사 문제 (이모지 보기형)
+function nextDescQuestion() {
+  const pool = descQuizData;
+  if (pool.length < 1) return;
+
+  let item;
+  do {
+    item = pool[Math.floor(Math.random() * pool.length)];
+  } while (pool.length > 1 && lastQuiz2Key === item.q);
+  lastQuiz2Key = item.q;
+  currentQuiz2 = { answer: item.word };
+
+  // 동화 제목 숨김, 아이콘 표시
+  document.getElementById('quiz2TaleTitle').style.display = 'none';
+  document.getElementById('quiz2Icon').style.display = 'block';
+  document.getElementById('quiz2Icon').textContent = '🔍';
+  document.getElementById('quiz2Question').textContent = item.q;
+
+  // 오답 이모지 3개 뽑기 (다른 묘사 단어들에서)
+  const others = descQuizData.filter(d => d.word !== item.word);
+  const wrongs = [];
+  const used = new Set();
+  while (wrongs.length < 3 && used.size < others.length) {
+    const idx = Math.floor(Math.random() * others.length);
+    if (!used.has(idx)) { used.add(idx); wrongs.push(others[idx]); }
+  }
+  const opts = [item, ...wrongs].sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('quiz2OptionsGrid');
+  grid.innerHTML = '';
+  opts.forEach((o) => {
+    const btn = document.createElement('div');
+    btn.className = 'option';
+    btn.innerHTML = `<div class="option-emoji">${o.emoji}</div><div class="option-word">${o.word}</div>`;
+    btn.addEventListener('click', () => selectQuiz2Option(btn, { word: o.word }));
+    grid.appendChild(btn);
+  });
+}
+
+function selectQuiz2Option(btn, option) {
+  if (isAnimating) return;
+  if (btn.classList.contains('locked') || btn.classList.contains('wrong')) return;
+  playClickSound();
+
+  if (option.word === currentQuiz2.answer) {
+    handleCorrect('quiz2', btn, option);
+  } else {
+    handleWrong('quiz2', btn, option);
+  }
+}
+
 // === 공통 정답/오답 처리 ===
 function handleCorrect(mode, btn, option) {
   isAnimating = true;
-  const gridId = mode === 'reading' ? 'readingOptionsGrid' : 'optionsGrid';
-  const grid = document.getElementById(gridId);
+  // 모드별 설정 매핑
+  const cfg = {
+    reading: { gridId: 'readingOptionsGrid', scoreEl: 'score1', badge: 'reading', next: nextWord },
+    quiz:    { gridId: 'optionsGrid',        scoreEl: 'score2', badge: 'quiz',    next: nextQuiz },
+    quiz2:   { gridId: 'quiz2OptionsGrid',   scoreEl: 'score3', badge: 'quiz2',   next: nextQuiz2 },
+  }[mode];
+  const grid = document.getElementById(cfg.gridId);
 
   // 위치 계산
   const rect = btn.getBoundingClientRect();
@@ -2654,24 +3165,18 @@ function handleCorrect(mode, btn, option) {
     btn.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.8)`;
   }, 100);
 
-  // 콤보 증가
-  if (mode === 'reading') {
-    combo1++;
-    score1++;
-    document.getElementById('score1').textContent = score1;
-    document.getElementById('score1').classList.remove('score-flash');
-    void document.getElementById('score1').offsetWidth;
-    document.getElementById('score1').classList.add('score-flash');
-    updateComboBadge('reading');
-  } else {
-    combo2++;
-    score2++;
-    document.getElementById('score2').textContent = score2;
-    document.getElementById('score2').classList.remove('score-flash');
-    void document.getElementById('score2').offsetWidth;
-    document.getElementById('score2').classList.add('score-flash');
-    updateComboBadge('quiz');
-  }
+  // 콤보 + 점수 증가
+  let combo;
+  if (mode === 'reading') { combo1++; score1++; combo = combo1; }
+  else if (mode === 'quiz') { combo2++; score2++; combo = combo2; }
+  else { combo3++; score3++; combo = combo3; }
+
+  const scoreEl = document.getElementById(cfg.scoreEl);
+  scoreEl.textContent = (mode === 'reading' ? score1 : mode === 'quiz' ? score2 : score3);
+  scoreEl.classList.remove('score-flash');
+  void scoreEl.offsetWidth;
+  scoreEl.classList.add('score-flash');
+  updateComboBadge(cfg.badge);
 
   // 통계 업데이트
   appData.stats.total++;
@@ -2683,9 +3188,9 @@ function handleCorrect(mode, btn, option) {
   updateProgressBars({ flash: true });
 
   // 효과
-  const combo = mode === 'reading' ? combo1 : combo2;
   showCelebration(combo);
   playCorrectSound();
+  // 묘사/글자 게임은 정답 단어를 읽어줌 (동화도 정답 단어 읽기)
   setTimeout(() => speak(option.word, 1.0), 50);
 
   // 보상 체크 (마일스톤보다 우선) - stickerProgress 기반
@@ -2693,23 +3198,20 @@ function handleCorrect(mode, btn, option) {
   let extraDelay = 0;
 
   if (newRewards.length > 0) {
-    // 정답 축하 후 1.2초 뒤에 스티커 등장 + 진행 바 레벨업 애니메이션
     setTimeout(() => {
       showRewardCelebration(newRewards[0]);
       updateProgressBars({ levelUp: true });
     }, 1200);
     extraDelay = 1800;
   } else {
-    // 보상 없으면 마일스톤 체크
-    const totalScore = mode === 'reading' ? score1 : score2;
+    const totalScore = (mode === 'reading' ? score1 : mode === 'quiz' ? score2 : score3);
     setTimeout(() => checkMilestone(totalScore), 800);
   }
 
   setTimeout(() => {
     document.getElementById('overlay').innerHTML = '';
     isAnimating = false;
-    if (mode === 'reading') nextWord();
-    else nextQuiz();
+    cfg.next();
   }, 3600 + extraDelay);
 }
 
@@ -2720,11 +3222,15 @@ function handleWrong(mode, btn, option) {
 
   // 콤보 끊기
   if (mode === 'reading') { combo1 = 0; updateComboBadge('reading'); }
-  else { combo2 = 0; updateComboBadge('quiz'); }
+  else if (mode === 'quiz') { combo2 = 0; updateComboBadge('quiz'); }
+  else { combo3 = 0; updateComboBadge('quiz2'); }
 
   // 통계 업데이트
   appData.stats.total++;
-  const correctWord = mode === 'reading' ? currentWord.word : currentQuiz.answer.word;
+  let correctWord;
+  if (mode === 'reading') correctWord = currentWord.word;
+  else if (mode === 'quiz') correctWord = currentQuiz.answer.word;
+  else correctWord = currentQuiz2.answer;
   appData.stats.wrongCounts[correctWord] = (appData.stats.wrongCounts[correctWord] || 0) + 1;
 
   // 스티커 진행 감소 (최저 0)
@@ -2934,6 +3440,7 @@ function goHome() {
   speechSynthesis.cancel();
   document.getElementById('reading-screen').classList.remove('active');
   document.getElementById('quiz-screen').classList.remove('active');
+  document.getElementById('quiz2-screen').classList.remove('active');
   document.getElementById('start-screen').classList.add('active');
   document.getElementById('overlay').innerHTML = '';
   isAnimating = false;
@@ -2949,6 +3456,8 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
     const cat = btn.dataset.cat;
     if (mode === 'reading') startReadingGame(cat);
     else if (mode === 'quiz') startQuizGame(cat);
+    else if (mode === 'tale') startQuiz2Game('tale', cat);
+    else if (mode === 'desc') startQuiz2Game('desc', cat);
   });
 });
 
@@ -2964,8 +3473,8 @@ document.getElementById('wordQuestionCard').addEventListener('click', () => {
   if (currentWord) speak(currentWord.word, 0.85);
 });
 
-document.getElementById('prevPage').addEventListener('click', () => { playClickSound(); goToPage(0); });
-document.getElementById('nextPage').addEventListener('click', () => { playClickSound(); goToPage(1); });
+document.getElementById('prevPage').addEventListener('click', () => { playClickSound(); goToPage(Math.max(0, currentPage - 1)); });
+document.getElementById('nextPage').addEventListener('click', () => { playClickSound(); goToPage(Math.min(2, currentPage + 1)); });
 
 // 설정 버튼 / 모달
 document.getElementById('settingsBtn').addEventListener('click', () => {
@@ -3096,8 +3605,8 @@ document.getElementById('addRewardBtn').addEventListener('click', () => {
 // 키보드
 document.addEventListener('keydown', (e) => {
   if (document.getElementById('start-screen').classList.contains('active')) {
-    if (e.key === 'ArrowRight') goToPage(1);
-    else if (e.key === 'ArrowLeft') goToPage(0);
+    if (e.key === 'ArrowRight') goToPage(Math.min(2, currentPage + 1));
+    else if (e.key === 'ArrowLeft') goToPage(Math.max(0, currentPage - 1));
   }
 });
 
